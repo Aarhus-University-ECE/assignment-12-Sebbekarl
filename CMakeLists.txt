@@ -1,22 +1,33 @@
-cmake_minimum_required(VERSION 3.10)
-project(template)
+cmake_minimum_required(VERSION 3.0.0)
+project(main VERSION 0.1.0)
+
 include(CTest)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
-# add cpp files not containing a main function here
-# for example like this:
-# add_library(mylib src/max.cpp src/swap.cpp src/max_sum.cpp)
-target_include_directories(mylib PUBLIC include)
-
-# define executable named main for experimenting and debugging code
-add_executable(main src/main.cpp)
-target_compile_options(main PUBLIC -g -O0)
-target_link_libraries(main mylib)
-
-# tests are added by declaring a target, in this case 'tests'. additional tests
-# can be added by expanding the test cases in 'src/tests.cpp' or an additional
-# target via 'add_executable'
 enable_testing()
-add_subdirectory(tests)
 
+Include(FetchContent)
+
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.0.1 # or a later release
+)
+
+FetchContent_MakeAvailable(Catch2)
+
+include_directories(.)
+
+add_library(dura duration.cpp)
+
+add_executable(main main.cpp)
+
+target_link_libraries(main dura)
+
+add_executable(tests test/test.cpp)
+
+target_link_libraries(tests dura Catch2::Catch2WithMain)
+
+include(Catch)
+catch_discover_tests(tests)
